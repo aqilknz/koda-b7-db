@@ -3,8 +3,8 @@ erDiagram
     USERS ||--|| PROFILES : "memiliki"
     USERS ||--|| WALLETS : "mempunyai"
     USERS ||--o{ TRANSACTIONS : "melakukan"
-    TRANSACTION_CATEGORIES ||--o{ TRANSACTIONS : "melakukan"
-    PAYMENT_METHODS ||--o{ TRANSACTIONS : "melakukan"
+    TRANSACTIONS  ||--o{ TRANSACTION_CATEGORIES : "mempunyai"
+    TRANSACTIONS ||--o{ PAYMENT_METHODS : "mempunyai"
 
     USERS {
         serial id PK
@@ -44,9 +44,9 @@ erDiagram
         int receiver_id FK
         int category_id FK
         int payment_method_id FK
-        int subtotal "Nilai transaksi"
-        int tax_amount "Biaya admin/pajak"
-        int total_amount "Nilai akhir diproses"
+        int subtotal 
+        int tax_amount 
+        int total_amount
         varchar transaction_type
         varchar status
         text notes
