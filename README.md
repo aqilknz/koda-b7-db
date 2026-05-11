@@ -73,7 +73,7 @@ erDiagram
     USERS ||--|| WALLETS : memiliki
 
     USERS ||--o{ TOPUPS : membuat
-    TOPUPS ||--o{ PAYMENT_METHODS : memiliki
+    TOPUPS }|--o| PAYMENT_METHODS : menggunakan
     
     USERS ||--o{ TRANSFERS : transfer_out
     USERS ||--o{ TRANSFERS : transfer_in
