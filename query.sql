@@ -1,3 +1,4 @@
+-- Active: 1778319885998@@127.0.0.1@5050@db_ewallet
 -- register
 INSERT INTO users (email, password, pin) 
 VALUES ('aqil@mail.com', 'admin123', '123456');
@@ -14,7 +15,7 @@ JOIN profiles p ON u.id = p.user_id
 WHERE u.id =1;
 
 -- cek pin
-SELECT email, pin FROM users WHERE id = 2;
+SELECT email, pin FROM users WHERE id = 1;
 
 -- get transaction history
 SELECT t.sender_id, t.receiver_id,t.total_amount, tc.name as category_name, pm.name as payment_method_name
@@ -44,23 +45,29 @@ SELECT
     WHERE sender_id = w.user_id AND transaction_type = 'expense' 
     AND status = 'success') as total_expense
 FROM wallets w
-WHERE w.user_id = 2;
+WHERE w.user_id = 1;
 
 -- find receiver with pagination
-SELECT u.id as user_id, p.full_name, p.phone, p.photo
+SELECT DISTINCT
+    u.id AS user_id, 
+    p.full_name, 
+    p.phone, 
+    p.photo
 FROM users u
 JOIN profiles p ON u.id = p.user_id
-WHERE u.id != 1
-AND (LOWER(p.full_name) LIKE LOWER('%Siti%') OR p.phone LIKE '%0812%')
+JOIN transactions t ON t.receiver_id = u.id
+WHERE u.id != 1 AND LOWER(p.full_name) LIKE LOWER('%S%')
+  AND p.phone LIKE '%0812%'
+  AND t.status = 'success'
 LIMIT 10 OFFSET 0;
 
--- Topup dan Transfer
+-- Create transaction Topup dan Transfer
 INSERT INTO transactions (sender_id, receiver_id, category_id, payment_method_id, subtotal, tax_amount, total_amount, transaction_type, status, notes) 
 VALUES (1, NULL, 1, 3, 1000000, 0, 1000000, 'income', 'success', 'Top up via BCA');
 UPDATE wallets SET balance = balance + 1000000 WHERE user_id = 1;
 
 INSERT INTO transactions (sender_id, receiver_id, category_id, payment_method_id, subtotal, tax_amount, total_amount, transaction_type, status, notes) 
-VALUES (1, 2, 2, 3, 250000, 0, 250000, 'expense', 'success', 'Transfer ke Siti');
+VALUES (1, 2, 2, 3, 250000, 0 , 250000, 'expense', 'success', 'Transfer ke Siti');
 
 UPDATE wallets SET balance = balance - 250000 WHERE user_id = 1;
 UPDATE wallets SET balance = balance + 250000 WHERE user_id = 2;
@@ -81,7 +88,9 @@ UPDATE users SET pin = '1239' WHERE id = 6;
 SELECT * FROM users where id=6;
 
 -- change user profile
-UPDATE profiles SET full_name = 'Nina Sari', phone = 080606053, photo = 'https://cchangeprofile.com' WHERE user_id = 10;
+UPDATE profiles 
+SET full_name = 'Nina Sari', phone = 080606053, photo = 'https://cchangeprofile.com' 
+WHERE user_id = 10;
 SELECT * FROM profiles WHERE id= 10;
 
 table users;
