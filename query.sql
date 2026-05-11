@@ -1,7 +1,16 @@
 -- Active: 1778319885998@@127.0.0.1@5050@db_ewallet
 -- register
-INSERT INTO users (email, password, pin) 
-VALUES ('aqil@mail.com', 'admin123', '123456');
+WITH register AS (
+    INSERT INTO users (email, password) 
+    VALUES ('aqil@email.com', 'pass1234')
+    RETURNING id
+),
+create_wallet AS (
+    INSERT INTO wallets (user_id)
+    SELECT id FROM register
+)
+INSERT INTO profiles (user_id)
+SELECT id FROM register;
 
 -- login
 SELECT id, email, password
@@ -20,8 +29,8 @@ SELECT email, pin FROM users WHERE id = 1;
 -- get transaction history
 SELECT t.sender_id, t.receiver_id,t.total_amount, tc.name as category_name, pm.name as payment_method_name
 FROM transactions t
-LEFT JOIN transaction_categories tc ON t.category_id = tc.id
-LEFT JOIN payment_methods pm ON t.payment_method_id = pm.id
+JOIN transaction_categories tc ON t.category_id = tc.id
+JOIN payment_methods pm ON t.payment_method_id = pm.id
 WHERE t.sender_id = 1 OR t.receiver_id = 1
 ORDER BY t.created_at DESC;
 
@@ -36,11 +45,11 @@ ORDER BY created_at DESC;
 -- get user account information (balance, income, expense)
 SELECT 
     w.balance,
-    (SELECT COALESCE(SUM(total_amount), 0) 
+    (SELECT SUM(total_amount)
     FROM transactions 
     WHERE ((sender_id = w.user_id AND transaction_type = 'income') OR receiver_id = w.user_id) 
     AND status = 'success') as total_income,
-    (SELECT COALESCE(SUM(total_amount), 0) 
+    (SELECT SUM(total_amount) 
     FROM transactions 
     WHERE sender_id = w.user_id AND transaction_type = 'expense' 
     AND status = 'success') as total_expense
@@ -84,7 +93,9 @@ UPDATE users SET password = 'node123' WHERE id = 2;
 SELECT * FROM users where id=2;
 
 -- change pin
-UPDATE users SET pin = '1239' WHERE id = 6;
+UPDATE users 
+SET pin = '1239' 
+WHERE id = 6 AND updated_at = now();
 SELECT * FROM users where id=6;
 
 -- change user profile
